@@ -1,4 +1,4 @@
-# Welcome Bot V2
+# Welcome Bot
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 
