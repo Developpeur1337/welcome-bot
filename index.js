@@ -7,16 +7,20 @@ const colors = require('colors');
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates,
     ],
     partials: [
         Partials.Message,
         Partials.Channel,
         Partials.GuildMember,
+        Partials.GuildScheduledEvent 
     ],
     presence: {
         activities: [{
-            name: `Bienvenue !`,
+            name: `Prefix /`,
             type: ActivityType.Streaming,
             url: "https://www.twitch.tv/developpeur1337"
         }],
@@ -27,6 +31,10 @@ const client = new Client({
         repliedUser: false
     }
 });
+
+client.config = config;
+client.perms = require('./db/db.json');
+client.commands = new Collection();
 
 function load(dir) {
     let files = [];
@@ -53,12 +61,17 @@ for (const file of Event) {
     }
 }
 
+const Commande = load("./commandes");
+for (const file of Commande) {
+    const command = require(path.resolve(file));
+    client.commands.set(command.name, command);
+}
 
 async function errorHandler(error) {
     if ([10062, 10008, 50013, 40060].includes(error.code)) return;
     console.log(`[ERROR] ${error}`.red);
 }
-process.on("unhandledRejection", errorHandler);
-process.on("uncaughtException", errorHandler);
+//process.on("unhandledRejection", errorHandler);
+//process.on("uncaughtException", errorHandler);
 
-client.login(config.token);
+client.login(client.config.token);
